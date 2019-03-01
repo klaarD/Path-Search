@@ -36,6 +36,14 @@ public class AS {
             dimensions.print();
             System.out.println(" , value: " + value + ", path cost: " + pathCost);
         }
+        
+        @Override
+        public boolean equals(Object o){
+            if(o == this) return true;
+            if(!(o instanceof Element)) return false;
+            Element e = (Element) o;
+            return (e.dimensions.row == this.dimensions.row && e.dimensions.column == this.dimensions.column);  
+        }
     }
     
     public AS(Data data){
@@ -47,24 +55,18 @@ public class AS {
         heuristic = new int[data.dimensionRow][data.dimensionColumn];
         for(int i = 0; i < data.dimensionRow; i++){
             for(int j = 0; j < data.dimensionColumn; j++){
-                //count manhattan distance from the goal
                 heuristic[i][j] = (abs(data.goal.row - i) + abs(data.goal.column -j));
             }
         }
     }
     
-    private boolean dimensionValid(Dimensions dimensions, ArrayList<Element> visited){
+    private boolean dimensionValid(Dimensions dimensions, ArrayList<Element> visited, PriorityQueue<Element> searchQ){
         if(dimensions.row < 0 || dimensions.column < 0 || dimensions.row >= data.dimensionRow || dimensions.column >= data.dimensionColumn)
             return false;
-        if(data.map[dimensions.row][dimensions.column] == 0)
+        if (data.map[dimensions.row][dimensions.column] == 0 || visited.contains(new Element(dimensions,0,0)))
             return false;
-        for(int i = 0; i < visited.size(); i++){
-            if(dimensions.isEqual(visited.get(i).dimensions)){
-          //      if(visited.get(i).pathCost > pathCost)
-                return false;
-            }
-        }
         return true;
+                 
     }
     
     private void printPath(Dimensions path[][]){
@@ -117,7 +119,7 @@ public class AS {
             children.add(new Dimensions(current.dimensions.row, (current.dimensions.column)+1));
             
             for(int i = 0; i < 4; i++){
-                if(dimensionValid(children.get(i), visited)){ //validate children
+                if(dimensionValid(children.get(i), visited, searchQ)){ //validate children
                     path[children.get(i).row][children.get(i).column] = new Dimensions(current.dimensions.row, current.dimensions.column);
                     int pathCost = current.pathCost + data.map[children.get(i).row][children.get(i).column];
                     if(children.get(i).isEqual(data.goal)){

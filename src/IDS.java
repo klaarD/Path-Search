@@ -22,12 +22,8 @@ public class IDS {
     public boolean dimensionValid(Dimensions dimensions, ArrayList<Dimensions> visited){
         if(dimensions.row < 0 || dimensions.column < 0 || dimensions.row >= data.dimensionRow || dimensions.column >= data.dimensionColumn)
             return false;
-        if(data.map[dimensions.row][dimensions.column] == 0)
+        if(data.map[dimensions.row][dimensions.column] == 0 || visited.contains(dimensions))
             return false;
-        for(int i = 0; i < visited.size(); i++){
-            if(dimensions.isEqual(visited.get(i)))
-                return false;
-        }
         return true;
     }
     

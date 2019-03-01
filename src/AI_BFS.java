@@ -61,17 +61,23 @@ public class AI_BFS {
         double time = (double) estimatedTime / 1000;
         System.out.println("Time: " + time + "s");
        
-      /*  IDS ids = new IDS(data);
+        IDS ids = new IDS(data);
         startTime = System.currentTimeMillis();
         ids.IDS();
         stopTime = System.currentTimeMillis();
         estimatedTime = stopTime - startTime;
         time = (double) estimatedTime / 1000;
-        System.out.println("Time: " + time + "s");  */
+        System.out.println("Time: " + time + "s");  
    
-     //   AS astar = new AS(data);
-       // astar.search();
+        AS astar = new AS(data);
+        startTime = System.currentTimeMillis();
+        astar.search();
+        stopTime = System.currentTimeMillis();
+        estimatedTime = stopTime - startTime;
+        time = (double) estimatedTime / 1000;
+        System.out.println("Time: " + time + "s");  
     }
+    
 }
 
 
