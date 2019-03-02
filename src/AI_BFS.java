@@ -3,13 +3,14 @@ import java.io.File;
 import java.util.Scanner;
 
 public class AI_BFS {
-    int map[][];
-    int dimensionRow;
-    int dimensionColumn;
-    Dimensions start;
-    Dimensions goal;
+    public int map[][];
+    public int dimensionRow;
+    public int dimensionColumn;
+    public Dimensions start;
+    public Dimensions goal;
     
-    private void readFile(String FileName) throws FileNotFoundException {
+    
+    public void readFile(String FileName) throws FileNotFoundException {
         File file = new File(FileName);
         //try {
             Scanner sc = new Scanner(file);
@@ -32,7 +33,7 @@ public class AI_BFS {
             }  
     }
     
-    private void printGivenData() {
+    public void printGivenData() {
             System.out.println(dimensionRow + " " + dimensionColumn);
             System.out.println(start.row + " " + start.column);
             System.out.println(goal.row + " " + goal.column);
@@ -49,33 +50,34 @@ public class AI_BFS {
     public static void main(String[] args) throws FileNotFoundException{
         AI_BFS search = new AI_BFS();
         search.readFile("map.txt");
-        search.printGivenData();
+     //   search.printGivenData();
         Data data = new Data(search.map, search.dimensionRow, search.dimensionColumn, search.start, search.goal);
        
         
-        BFS bfs = new BFS(data);
+   /*     BFS bfs = new BFS(data);*/
         long startTime = System.currentTimeMillis();
-        bfs.BFS();
+ //       bfs.BFS();
         long stopTime = System.currentTimeMillis();
         long estimatedTime = stopTime - startTime;
         double time = (double) estimatedTime / 1000;
-        System.out.println("Time: " + time + "s");
+        //System.out.println("Time: " + time + "s");
        
         IDS ids = new IDS(data);
         startTime = System.currentTimeMillis();
         ids.IDS();
+        ids.search();
         stopTime = System.currentTimeMillis();
         estimatedTime = stopTime - startTime;
         time = (double) estimatedTime / 1000;
         System.out.println("Time: " + time + "s");  
    
-        AS astar = new AS(data);
+       /* AS astar = new AS(data);
         startTime = System.currentTimeMillis();
         astar.search();
         stopTime = System.currentTimeMillis();
         estimatedTime = stopTime - startTime;
         time = (double) estimatedTime / 1000;
-        System.out.println("Time: " + time + "s");  
+        System.out.println("Time: " + time + "s");  */
     }
     
 }

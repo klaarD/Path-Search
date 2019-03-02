@@ -4,83 +4,72 @@ import java.util.Queue;
 
 public class BFS {
     private final Data data;
-    
+    private results res;
+ 
     public BFS(Data data){
         this.data = data;
     }
     
-    private void printInfo(int inMem, Dimensions path[][], ArrayList<Dimensions> visited){
+    private void printInfo(int inMem, int visited){
         int cost = 0;
         Dimensions currentDim = data.goal;
-        
-        System.out.print("Expanded nodes: ");
-        for(int k = 0; k < visited.size(); k++){
-            System.out.print("(" + visited.get(k).row+ "," + visited.get(k).column + ")");
-        }
-        System.out.println();
-        System.out.println("Number of expanded nodes: " + visited.size());
-                      
-        System.out.println("Maximum number of nodes held in memory: " + inMem);
-                      
-        System.out.print("Path: ");
-        System.out.print("(" + currentDim.row + "," + currentDim.column + ")");
+        ArrayList<Dimensions> finalPath = new ArrayList<>();
+        finalPath.add(currentDim);
         while(!currentDim.isEqual(data.start)){
             cost += data.map[currentDim.row][currentDim.column];
-            currentDim = path[currentDim.row][currentDim.column];
-            System.out.print("(" + currentDim.row + "," + currentDim.column + ")");
+            currentDim = data.path[currentDim.row][currentDim.column];
+            finalPath.add(currentDim);
         }
-        System.out.println();
-        System.out.println("cost = " + cost);
+        res = new results(visited,inMem, cost,finalPath);
+        res.printResults();
     }
        
-    public boolean dimensionValid(Dimensions dimensions, ArrayList<Dimensions> visited, Queue<Dimensions> SearchQ){
-        if(dimensions.row < 0 || dimensions.column < 0 || dimensions.row >= data.dimensionRow || dimensions.column >= data.dimensionColumn)
+    public results getResults(){
+        return res;
+    }
+    
+    public boolean dimensionValid(Dimensions dimensions){
+        if(dimensions.row < 0 || dimensions.column < 0 || dimensions.row >= data.dimensionRow || dimensions.column >= data.dimensionColumn) //check if dimensions are at the map
             return false;
-        if(data.map[dimensions.row][dimensions.column] == 0 || SearchQ.contains(dimensions) || visited.contains(dimensions))
-            return false;
-        return true;     
+        return !(data.path[dimensions.row][dimensions.column].row != -1  || data.map[dimensions.row][dimensions.column] == 0); //check if the node has already been visited and if can be visited
     }
         
     public void BFS(){
-        Queue<Dimensions> SearchQueue = new LinkedList<>();         //create empty queue for opened nodes
-        Dimensions path[][] = new Dimensions[data.dimensionRow][data.dimensionColumn];         //create path map
-        
-        for(int i = 0; i < data.dimensionRow; i++)
-            for(int j = 0; j < data.dimensionColumn; j++)
-                path[i][j] = new Dimensions(-1,-1);
-          
-        ArrayList<Dimensions> visited = new ArrayList<>(); //array for already visited nodes
+        int expanded = 0; //number of expanded nodes   
+        if(data.map[data.start.row][data.start.column] == 0 || data.map[data.goal.row][data.goal.column] == 0){
+                res = new results(expanded,0, -1, null); //solution was not found, set the result accordingly
+                res.printResults(); // print the result   
+                return;
+        }
+        if(data.goal.isEqual(data.start)){ //check if the start is the same as the goal
+            printInfo(0, expanded);   //print result
+            return; //solution found, return from the method
+        }
+        Queue<Dimensions> SearchQueue = new LinkedList<>(); //create empty queue for opened nodes
         SearchQueue.add(data.start); // add start node to opened nodes
-        int mem = 1;
-        
-        //run while there is an opened node or until the solution is found
-        while(SearchQueue.size() > 0){
-            //search all the neighbourhs of the first element of the queue
-            // if the node is not already opened or visited, add it to the queue
-            Dimensions current = SearchQueue.remove();
-            visited.add(current);
-            System.out.println("Visiting: " + current.row + " " + current.column);
-            ArrayList<Dimensions> children = new ArrayList<>();
-            children.add(new Dimensions((current.row)-1, current.column));
-            children.add(new Dimensions(current.row, (current.column)-1));
-            children.add(new Dimensions((current.row)+1, current.column));
-            children.add(new Dimensions(current.row, (current.column)+1));
-            
-            //check validity of the children and get rid of the invalid ones
-            for(int i = 0; i < 4; i++){
-                if(dimensionValid(children.get(i), visited, SearchQueue)){
-                    //add to the search queue and opened list
-                    path[children.get(i).row][children.get(i).column] = new Dimensions(current.row, current.column);
+        int mem = 1; // maximum number of nodes in memory at one time
+        while(SearchQueue.size() > 0){ //expand nodes from the queue, run while there is an opened node or until the solution is found
+            Dimensions current = SearchQueue.remove(); //expand first node in the queue
+            expanded++; //new node is being expanded
+            ArrayList<Dimensions> children = new ArrayList<>(); // list of all the possible children of the node
+            children.add(0,new Dimensions((current.row)-1, current.column)); //up
+            children.add(1,new Dimensions(current.row, (current.column)-1)); //left
+            children.add(2,new Dimensions((current.row)+1, current.column)); //down
+            children.add(3,new Dimensions(current.row, (current.column)+1)); //right
+
+            for(int i = 0; i < 4; i++){  //check validity of the children and get rid of the invalid ones
+                if(dimensionValid(children.get(i))){ //node is valid, not visited yet -> can be opened
+                    data.path[children.get(i).row][children.get(i).column] = new Dimensions(current.row, current.column); //save parent of the node to the path
                     if(children.get(i).isEqual(data.goal)){ //goal found
-                        System.out.println(children.get(i).row + " " + children.get(i).column);
-                        printInfo(mem, path, visited);
-                        return;
+                        printInfo(mem,expanded); //print information
+                        return; //return from the function
                     }
-                    System.out.println("New node found: " + children.get(i).row + " " + children.get(i).column);
-                     SearchQueue.add(children.get(i));
-                    if(SearchQueue.size() > mem) mem = SearchQueue.size();
+                    SearchQueue.add(children.get(i)); //add to search queue
+                    if(SearchQueue.size() > mem) mem = SearchQueue.size(); // check the maximum number of nodes in memory
                 }
             }
-        }   
+        } 
+        res = new results(expanded,mem, -1, null); //solution was not found, set the result accordingly
+        res.printResults(); // print the result
     }   
 }

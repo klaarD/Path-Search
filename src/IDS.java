@@ -3,13 +3,22 @@ import java.util.ArrayList;
 public class IDS {
     private boolean foundSolution;
     private final Data data;
+    results res;
+    int mem;
+    int expanded;
+    int limit;
     
     public IDS(Data data){
         this.data = data;
     }
     
     public void IDS(){
-        int limit = data.dimensionRow*data.dimensionColumn;
+        limit = data.dimensionRow*data.dimensionColumn;
+        mem = 0;
+        expanded = 0;
+    }
+    
+    public void search(){
         for(int i = 0; i < limit; i++){
             DFS(i);
             if(foundSolution == true) {
@@ -17,28 +26,34 @@ public class IDS {
                 return;
             }           
         }
+        res = new results(expanded,mem,-1, null);
     }
     
     public boolean dimensionValid(Dimensions dimensions, ArrayList<Dimensions> visited){
         if(dimensions.row < 0 || dimensions.column < 0 || dimensions.row >= data.dimensionRow || dimensions.column >= data.dimensionColumn)
             return false;
-        if(data.map[dimensions.row][dimensions.column] == 0 || visited.contains(dimensions))
+        if(data.map[dimensions.row][dimensions.column] == 0 || data.path[dimensions.row][dimensions.column].row != -1/*|| visited.contains(dimensions)*/)
             return false;
         return true;
     }
-    
-    private void printPath(Dimensions path[][]){
-        Dimensions currentDim = new Dimensions(data.goal.row, data.goal.column);
+
+    private void printInfo(){
         int cost = 0;
-        System.out.print("Path: ");
-        System.out.print("(" + currentDim.row + "," + currentDim.column + ")");
+        Dimensions currentDim = data.goal;
+        ArrayList<Dimensions> finalPath = new ArrayList<>();
+        finalPath.add(currentDim);
         while(!currentDim.isEqual(data.start)){
             cost += data.map[currentDim.row][currentDim.column];
-            currentDim = path[currentDim.row][currentDim.column];
-            System.out.print("(" + currentDim.row + "," + currentDim.column + ")");
+            currentDim = data.path[currentDim.row][currentDim.column];
+            finalPath.add(currentDim);
         }
-        System.out.println();
-        System.out.println("cost = " + cost);
+        res = new results(expanded,1, cost,finalPath);
+        res.printResults();
+        
+    }
+    
+    public results getResults(){
+        return res;
     }
     
     private void DFSUtil(Dimensions current, ArrayList<Dimensions> visited, Dimensions path[][], int depth){
@@ -47,12 +62,13 @@ public class IDS {
         if(depth == 0){
             if(current.isEqual(data.goal)){
                 System.out.println(current.row + " " + current.column);
-                System.out.println("Solution found in the depth: " + depth);
+                //System.out.println("Solution found in the depth: " + depth);
                 foundSolution = true;
             }
             return;
         }
         visited.add(current);
+        expanded++;
         System.out.println("Visiting: " + current.row + " " + current.column);
         ArrayList<Dimensions> children = new ArrayList<>();
         children.add(new Dimensions((current.row)-1, current.column));
@@ -63,14 +79,14 @@ public class IDS {
             //check validity of the children and get rid of the invalid ones
             for(int i = 0; i < 4; i++){
                 if(dimensionValid(children.get(i), visited)){
-                    path[children.get(i).row][children.get(i).column] = new Dimensions(current.row, current.column); //add to path
+                    data.path[children.get(i).row][children.get(i).column] = new Dimensions(current.row, current.column); //add to path
                     if(children.get(i).isEqual(data.goal)){
                         System.out.println("Solution found");
-                        printPath(path);
+                        printInfo();
                         foundSolution = true;
                         return;
                     }
-                    System.out.println("New node found: " + children.get(i).row + " " + children.get(i).column);
+                   // System.out.println("New node found: " + children.get(i).row + " " + children.get(i).column);
                     visited.add(children.get(i));
                     DFSUtil(children.get(i), visited, path, depth-1);
                 }
@@ -83,7 +99,7 @@ public class IDS {
         Dimensions path[][] = new Dimensions[data.dimensionRow][data.dimensionColumn];
         for(int i = 0; i < data.dimensionRow; i++){
             for(int j = 0; j < data.dimensionColumn; j++){
-                path[i][j] = new Dimensions(-1,-1);
+                data.path[i][j] = new Dimensions(-1,-1);
             }
         }
         System.out.println("limit = " + limit);
