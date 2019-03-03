@@ -1,12 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- *
- * @author Clara
+ * Represents one already opened node
+ * its dimensions, heuristic, pathCost and value
  */
 public class Element {
         Dimensions dimensions;
@@ -18,7 +12,6 @@ public class Element {
             this.dimensions = dimensions;
             this.value = value;
             this.pathCost = pathCost;
-        //    h = heuristic[dimensions.row][dimensions.column];
             h = heuristic;
         }
         

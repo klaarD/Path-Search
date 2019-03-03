@@ -2,14 +2,22 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * implements BFS search on the given data
+ */
 public class BFS {
-    private final Data data;
-    private results res;
+    private final Data data; //data from the file + path
+    private results res; //to store result data
  
     public BFS(Data data){
         this.data = data;
     }
     
+    /**
+     * print final information
+     * @param inMem maximum number of nodes in memory at one time
+     * @param visited number of expanded nodes
+     */
     private void printInfo(int inMem, int visited){
         int cost = 0;
         Dimensions currentDim = data.goal;
@@ -28,13 +36,33 @@ public class BFS {
         return res;
     }
     
+    /**
+     * Validates if the given node is in the map or if it has already been opened
+     * @param dimensions dimensions of the node
+     * @return 
+     */
     public boolean dimensionValid(Dimensions dimensions){
         if(dimensions.row < 0 || dimensions.column < 0 || dimensions.row >= data.dimensionRow || dimensions.column >= data.dimensionColumn) //check if dimensions are at the map
             return false;
         return !(data.path[dimensions.row][dimensions.column].row != -1  || data.map[dimensions.row][dimensions.column] == 0); //check if the node has already been visited and if can be visited
     }
-        
-    public void BFS(){
+    
+    /**
+     * Checks if the program is running for more than 3 minutes
+     * @param startTime starting time of the search
+     * @return 
+     */
+    public boolean overtime(long startTime){
+        long currentTime = System.currentTimeMillis();
+        long estimatedTime = currentTime - startTime;
+        return (estimatedTime > 180000);
+    }
+    
+    /**
+     * BFS search
+     * @param startTime starting time of the program
+     */
+    public void BFS(long startTime){
         int expanded = 0; //number of expanded nodes   
         if(data.map[data.start.row][data.start.column] == 0 || data.map[data.goal.row][data.goal.column] == 0){
                 res = new results(expanded,0, -1, null); //solution was not found, set the result accordingly
@@ -49,6 +77,11 @@ public class BFS {
         SearchQueue.add(data.start); // add start node to opened nodes
         int mem = 1; // maximum number of nodes in memory at one time
         while(SearchQueue.size() > 0){ //expand nodes from the queue, run while there is an opened node or until the solution is found
+            if(overtime(startTime)){             //save result and return
+                res = new results(expanded,mem, -1, null); //solution was not found, set the result accordingly
+                res.printResults(); // print the result   
+                return;
+            }   
             Dimensions current = SearchQueue.remove(); //expand first node in the queue
             expanded++; //new node is being expanded
             ArrayList<Dimensions> children = new ArrayList<>(); // list of all the possible children of the node

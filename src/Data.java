@@ -1,3 +1,8 @@
+/**
+ * Class to store data from the file
+ * Also stores path
+ */
+
 public class Data {
     int map[][];
     int dimensionRow;

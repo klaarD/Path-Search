@@ -38,7 +38,9 @@ public class results {
         System.out.println("Maximum number of nodes held in memory: " + MaxMemNodes);
         System.out.println("Path cost: " + finalPathCost);
         if(path != null){
+            System.out.print("Path: ");
             for(int i = path.size()-1; i>= 0; i--){
+                if(i != path.size()-1) System.out.print(",");
                 path.get(i).print();
             }
             System.out.println();
